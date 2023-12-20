@@ -8,11 +8,17 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+
 import com.bumptech.glide.Glide;
 import com.dantsu.escposprinter.EscPosPrinter;
 import com.dantsu.escposprinter.connection.DeviceConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
 import com.dantsu.escposprinter.connection.tcp.TcpConnection;
+import com.dantsu.escposprinter.connection.usb.UsbConnection;
+import com.dantsu.escposprinter.connection.usb.UsbPrintersConnections;
 import com.dantsu.escposprinter.exceptions.EscPosBarcodeException;
 import com.dantsu.escposprinter.exceptions.EscPosConnectionException;
 import com.dantsu.escposprinter.exceptions.EscPosEncodingException;
@@ -23,6 +29,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
+
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -153,6 +160,38 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
       }
     }
   }
+
+  /*==============================================================================================
+  ===========================================USB PART=============================================
+  ==============================================================================================*/
+
+  @ReactMethod
+  public void printUsb(String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine, Promise promise) {
+    this.jsPromise = promise;
+
+    if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.USB_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+    
+      ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.USB_PERMISSION}, 1);            
+    
+    } else {
+
+      try{
+
+        UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
+        UsbManager usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);      
+
+        if (usbConnection == null || usbManager == null) {
+          this.jsPromise.reject("Connection Error", "No USB printer found.");
+        }               
+        
+        this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
+
+      } catch (Exception e) {
+        this.jsPromise.reject("USB Error", e.getMessage());
+      }              
+
+    }
+  }  
 
   private Bitmap getBitmapFromUrl(String url) {
     try {

@@ -132,6 +132,30 @@ const printBluetooth = (
   );
 };
 
+const printUSB = (
+  args: Partial<PrinterInterface> & Pick<PrinterInterface, 'payload'>
+): Promise<void> => {
+  const {
+    payload,
+    autoCut,
+    openCashbox,
+    mmFeedPaper,
+    printerDpi,
+    printerWidthMM,
+    printerNbrCharactersPerLine,
+  } = getConfig(args);
+
+  return ThermalPrinterModule.printUSB(
+    payload,
+    autoCut,
+    openCashbox,
+    mmFeedPaper,
+    printerDpi,
+    printerWidthMM,
+    printerNbrCharactersPerLine
+  );
+};
+
 const getBluetoothDeviceList = (): Promise<BluetoothPrinter[]> => {
   return ThermalPrinterModule.getBluetoothDeviceList();
 };
@@ -139,6 +163,7 @@ const getBluetoothDeviceList = (): Promise<BluetoothPrinter[]> => {
 export default {
   printTcp,
   printBluetooth,
+  printUSB,
   defaultConfig,
   getBluetoothDeviceList,
 };
