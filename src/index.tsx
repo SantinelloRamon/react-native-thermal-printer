@@ -145,7 +145,7 @@ const printUSB = (
     printerNbrCharactersPerLine,
   } = getConfig(args);
 
-  return ThermalPrinterModule.printUSB(
+  return ThermalPrinterModule.printUsb(
     payload,
     autoCut,
     openCashbox,
