@@ -30,11 +30,21 @@ type NativeModuleType = typeof NativeModules & {
       printerNbrCharactersPerLine: number
     ): Promise<void>;
     getBluetoothDeviceList(): Promise<BluetoothPrinter[]>;
+    printUsb(
+      payload: string,
+      autoCut: boolean,
+      openCashbox: boolean,
+      mmFeedPaper: number,
+      printerDpi: number,
+      printerWidthMM: number,
+      printerNbrCharactersPerLine: number
+    ): Promise<void>;
   };
 };
 
-const { ThermalPrinterModule }: NativeModuleType =
-  NativeModules as NativeModuleType;
+const {
+  ThermalPrinterModule,
+}: NativeModuleType = NativeModules as NativeModuleType;
 
 interface PrinterInterface {
   payload: string;
@@ -134,7 +144,7 @@ const printBluetooth = (
 
 //Print USB TEST
 
-const printUSB = (
+const printUsb = (
   args: Partial<PrinterInterface> & Pick<PrinterInterface, 'payload'>
 ): Promise<void> => {
   const {
@@ -165,7 +175,7 @@ const getBluetoothDeviceList = (): Promise<BluetoothPrinter[]> => {
 export default {
   printTcp,
   printBluetooth,
-  printUSB,
+  printUsb,
   defaultConfig,
   getBluetoothDeviceList,
 };
