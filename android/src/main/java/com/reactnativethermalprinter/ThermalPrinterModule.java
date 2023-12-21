@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.Context;
 
 import com.bumptech.glide.Glide;
 import com.dantsu.escposprinter.EscPosPrinter;
@@ -178,13 +179,13 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
       try{
 
         UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
-        UsbManager usbManager = (UsbManager) this.getSystemService(ContextCompat.USB_SERVICE);      
+        UsbManager usbManager = (UsbManager) this.getSystemService(Contex.USB_SERVICE);      
 
         if (usbConnection == null || usbManager == null) {
           this.jsPromise.reject("Connection Error", "No USB printer found.");
         }               
         
-        
+
         this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
 
       } catch (Exception e) {
