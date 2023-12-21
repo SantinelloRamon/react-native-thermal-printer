@@ -19,6 +19,8 @@ import com.dantsu.escposprinter.connection.DeviceConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
 import com.dantsu.escposprinter.connection.tcp.TcpConnection;
 import com.dantsu.escposprinter.connection.usb.UsbConnection;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import com.dantsu.escposprinter.connection.usb.UsbPrintersConnections;
 import com.dantsu.escposprinter.exceptions.EscPosBarcodeException;
 import com.dantsu.escposprinter.exceptions.EscPosConnectionException;
