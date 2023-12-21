@@ -172,9 +172,9 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   public void printUsb(String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine, Promise promise) {
     this.jsPromise = promise;
 
-    if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.USB_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+    if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.hardware.usb.host) != PackageManager.PERMISSION_GRANTED) {
     
-      ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.USB_PERMISSION}, 1);            
+      ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.hardware.usb.host}, 1);            
     
     } else {
 
