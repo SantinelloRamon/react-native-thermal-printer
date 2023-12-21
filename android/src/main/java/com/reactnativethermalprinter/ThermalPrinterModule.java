@@ -178,11 +178,12 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
       try{
 
         UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
-        UsbManager usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);      
+        UsbManager usbManager = (UsbManager) this.getSystemService(ContextCompat.USB_SERVICE);      
 
         if (usbConnection == null || usbManager == null) {
           this.jsPromise.reject("Connection Error", "No USB printer found.");
         }               
+        
         
         this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
 

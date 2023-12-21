@@ -142,8 +142,7 @@ const printBluetooth = (
   );
 };
 
-//Print USB TEST
-
+//Print USB TEST NEW
 const printUsb = (
   args: Partial<PrinterInterface> & Pick<PrinterInterface, 'payload'>
 ): Promise<void> => {
