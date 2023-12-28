@@ -169,37 +169,37 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   ===========================================USB PART=============================================
   ==============================================================================================*/
 
-  private static final String ACTION_USB_PERMISSION = "com.reactnativethermalprinter.USB_PERMISSION";
-  private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
-      public void onReceive(Context context, Intent intent) {
-          String action = intent.getAction();
-          if (MainActivity.ACTION_USB_PERMISSION.equals(action)) {
-              synchronized (this) {
-                  UsbManager usbManager = (UsbManager) getSystemService(context.USB_SERVICE);
-                  UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                  if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                      if (usbManager != null && usbDevice != null) {
-                          new AsyncUsbEscPosPrint(
-                              context,
-                              new AsyncEscPosPrint.OnPrintFinished() {
-                                  @Override
-                                  public void onError(AsyncEscPosPrinter asyncEscPosPrinter, int codeException) {
-                                      Log.e("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : An error occurred !");
-                                  }
+  // private static final String ACTION_USB_PERMISSION = "com.reactnativethermalprinter.USB_PERMISSION";
+  // private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+  //     public void onReceive(Context context, Intent intent) {
+  //         String action = intent.getAction();
+  //         if (MainActivity.ACTION_USB_PERMISSION.equals(action)) {
+  //             synchronized (this) {
+  //                 UsbManager usbManager = (UsbManager) getSystemService(context.USB_SERVICE);
+  //                 UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+  //                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+  //                     if (usbManager != null && usbDevice != null) {
+  //                         new AsyncUsbEscPosPrint(
+  //                             context,
+  //                             new AsyncEscPosPrint.OnPrintFinished() {
+  //                                 @Override
+  //                                 public void onError(AsyncEscPosPrinter asyncEscPosPrinter, int codeException) {
+  //                                     Log.e("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : An error occurred !");
+  //                                 }
 
-                                  @Override
-                                  public void onSuccess(AsyncEscPosPrinter asyncEscPosPrinter) {
-                                      Log.i("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : Print is finished !");
-                                  }
-                              }
-                          )
-                              .execute(getAsyncEscPosPrinter(new UsbConnection(usbManager, usbDevice)));
-                      }
-                  }
-              }
-          }
-      }
-  };  
+  //                                 @Override
+  //                                 public void onSuccess(AsyncEscPosPrinter asyncEscPosPrinter) {
+  //                                     Log.i("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : Print is finished !");
+  //                                 }
+  //                             }
+  //                         )
+  //                             .execute(getAsyncEscPosPrinter(new UsbConnection(usbManager, usbDevice)));
+  //                     }
+  //                 }
+  //             }
+  //         }
+  //     }
+  // };  
 
   @ReactMethod
   public void printUsb(String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine, Promise promise) {
