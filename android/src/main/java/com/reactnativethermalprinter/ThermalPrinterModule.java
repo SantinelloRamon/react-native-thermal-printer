@@ -175,7 +175,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
           String action = intent.getAction();
           if (MainActivity.ACTION_USB_PERMISSION.equals(action)) {
               synchronized (this) {
-                  UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+                  UsbManager usbManager = (UsbManager) getSystemService(context.USB_SERVICE);
                   UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                   if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                       if (usbManager != null && usbDevice != null) {
