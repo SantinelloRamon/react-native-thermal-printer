@@ -62,9 +62,11 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   public static final String NAME = "ThermalPrinterModule";
   private Promise jsPromise;
   private ArrayList<BluetoothConnection> btDevicesList = new ArrayList();
+  private Contex context;
 
   public ThermalPrinterModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    context = reactContext;
   }
 
   @Override
@@ -217,7 +219,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
     try{
 
       UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
-      UsbManager usbManager = (UsbManager) this.getSystemService(Contex.USB_SERVICE);      
+      UsbManager usbManager = (UsbManager) this.getSystemService(context.USB_SERVICE);      
 
       if (usbConnection == null || usbManager == null) {
         this.jsPromise.reject("Connection Error", "No USB printer found.");
