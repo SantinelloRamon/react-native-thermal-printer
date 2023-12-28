@@ -169,7 +169,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   ===========================================USB PART=============================================
   ==============================================================================================*/
 
-  private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+  private static final String ACTION_USB_PERMISSION = "com.reactnativethermalprinter.USB_PERMISSION";
   private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
       public void onReceive(Context context, Intent intent) {
           String action = intent.getAction();
@@ -205,29 +205,30 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   public void printUsb(String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine, Promise promise) {
     this.jsPromise = promise;
 
-    if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.hardware.usb.host) != PackageManager.PERMISSION_GRANTED) {
+    // if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.hardware.usb.host) != PackageManager.PERMISSION_GRANTED) {
     
-      ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.hardware.usb.host}, 1);            
+    //   ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.hardware.usb.host}, 1);            
     
-    } else {
+    // } else {
 
-      try{
+      
 
-        UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
-        UsbManager usbManager = (UsbManager) this.getSystemService(Contex.USB_SERVICE);      
+    // }
+    try{
 
-        if (usbConnection == null || usbManager == null) {
-          this.jsPromise.reject("Connection Error", "No USB printer found.");
-        }               
-        
+      UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
+      UsbManager usbManager = (UsbManager) this.getSystemService(Contex.USB_SERVICE);      
 
-        this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
+      if (usbConnection == null || usbManager == null) {
+        this.jsPromise.reject("Connection Error", "No USB printer found.");
+      }               
+      
 
-      } catch (Exception e) {
-        this.jsPromise.reject("USB Error", e.getMessage());
-      }              
+      this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
 
-    }
+    } catch (Exception e) {
+      this.jsPromise.reject("USB Error", e.getMessage());
+    }            
   }  
 
   private Bitmap getBitmapFromUrl(String url) {
