@@ -1,6 +1,7 @@
 package com.reactnativethermalprinter;
 
 import android.Manifest;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 
@@ -41,8 +42,11 @@ import java.util.regex.Pattern;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection;
+import com.dantsu.escposprinter.connection.usb.UsbPrintersConnections;
+import com.dantsu.escposprinter.connection.usb.UsbConnection;
 
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -63,9 +67,14 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   private Promise jsPromise;
   private ArrayList<BluetoothConnection> btDevicesList = new ArrayList();
 
+  private UsbManager usbManager;
+  private UsbConnection usbConnection;
+
+  private static final String ACTION_USB_PERMISSION = "com.reactnativethermalprinter.usb_permission";
+
 
   public ThermalPrinterModule(ReactApplicationContext reactContext) {
-    super(reactContext);    
+    super(reactContext);
   }
 
   @Override
@@ -170,67 +179,75 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   ===========================================USB PART=============================================
   ==============================================================================================*/
 
-  // private static final String ACTION_USB_PERMISSION = "com.reactnativethermalprinter.USB_PERMISSION";
-  // private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
-  //     public void onReceive(Context context, Intent intent) {
-  //         String action = intent.getAction();
-  //         if (MainActivity.ACTION_USB_PERMISSION.equals(action)) {
-  //             synchronized (this) {
-  //                 UsbManager usbManager = (UsbManager) getSystemService(context.USB_SERVICE);
-  //                 UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-  //                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-  //                     if (usbManager != null && usbDevice != null) {
-  //                         new AsyncUsbEscPosPrint(
-  //                             context,
-  //                             new AsyncEscPosPrint.OnPrintFinished() {
-  //                                 @Override
-  //                                 public void onError(AsyncEscPosPrinter asyncEscPosPrinter, int codeException) {
-  //                                     Log.e("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : An error occurred !");
-  //                                 }
+  private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+    public void onReceive(Context context, Intent intent) {
+      String action = intent.getAction();
+      if (ThermalPrinterModule.ACTION_USB_PERMISSION.equals(action)) {
+        synchronized (this) {
+          UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
+          UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+          if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+            if (usbManager != null && usbDevice != null) {
+              String payload = "[C]<u><font size='big'>ORDER N°045</font></u>\n" +
+                "[L]\n" +
+                "[C]=========================================\n" +
+                "[L]\n" +
+                "[L]<b>BEAUTIFUL SHIRT</b>[R]9.99e\n" +
+                "[L]  + Size : S\n" +
+                "[L]\n" +
+                "[L]<b>AWESOME HAT</b>[R]24.99e\n" +
+                "[L]  + Size : 57/58\n" +
+                "[L]\n" +
+                "[C]--------------------------------\n" +
+                "[R]TOTAL PRICE :[R]34.98e\n" +
+                "[R]TAX :[R]4.23e\n" +
+                "[L]\n" +
+                "[C]================================\n" +
+                "[L]\n" +
+                "[L]<font size='tall'>Customer :</font>\n" +
+                "[L]Raymond DUPONT\n" +
+                "[L]5 rue des girafes\n" +
+                "[L]31547 PERPETES\n" +
+                "[L]Tel : +33801201456\n" +
+                "[L]\n" +
+                "[C]<barcode type='ean13' height='10'>831254784551</barcode>\n" +
+                "[C]<qrcode size='20'>https://dantsu.com/</qrcode>";
+              UsbConnection printerConnection = new UsbConnection(usbManager, usbDevice);
+              printIt(printerConnection, payload, false, false, 6, 203, 80, 42);
+            }
+          }
+        }
+      }
+    }
+  };
 
-  //                                 @Override
-  //                                 public void onSuccess(AsyncEscPosPrinter asyncEscPosPrinter) {
-  //                                     Log.i("Async.OnPrintFinished", "AsyncEscPosPrint.OnPrintFinished : Print is finished !");
-  //                                 }
-  //                             }
-  //                         )
-  //                             .execute(getAsyncEscPosPrinter(new UsbConnection(usbManager, usbDevice)));
-  //                     }
-  //                 }
-  //             }
-  //         }
-  //     }
-  // };  
 
   @ReactMethod
   public void printUsb(String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine, Promise promise) {
     this.jsPromise = promise;
+    Log.i("DEBUG", "LIST DEVICES....");
 
-    // if(ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.hardware.usb.host) != PackageManager.PERMISSION_GRANTED) {
-    
-    //   ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.hardware.usb.host}, 1);            
-    
-    // } else {
+    this.usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
+    this.usbConnection = UsbPrintersConnections.selectFirstConnected(getReactApplicationContext());
+    Log.i("DEBUG USB CONNECTION", String.valueOf(this.usbConnection));
 
-      
+    if(this.usbConnection != null && usbManager != null) {
+      Log.i("DEBUG", "THERE IS USB CONNECTION AND USB MANAGER");
+      PendingIntent permissionIntent = PendingIntent.getBroadcast(
+        getReactApplicationContext(),
+        0,
+        new Intent(ThermalPrinterModule.ACTION_USB_PERMISSION),
+        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0
+      );
+      IntentFilter filter = new IntentFilter(ThermalPrinterModule.ACTION_USB_PERMISSION);
 
-    // }
-    try{
+      getCurrentActivity().registerReceiver(usbReceiver, filter);
+      usbManager.requestPermission(usbConnection.getDevice(), permissionIntent);
+    }
 
-      UsbConnection usbConnection = UsbPrintersConnections.selectFirstConnected(this);
-      UsbManager usbManager = (UsbManager) this.getSystemService(ContextCompat.USB_SERVICE);      
 
-      if (usbConnection == null || usbManager == null) {
-        this.jsPromise.reject("Connection Error", "No USB printer found.");
-      }               
-      
-
-      this.printIt(usbConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
-
-    } catch (Exception e) {
-      this.jsPromise.reject("USB Error", e.getMessage());
-    }            
-  }  
+    Log.i("DEBUG", String.valueOf(this.usbManager.getDeviceList()));
+  }
 
   private Bitmap getBitmapFromUrl(String url) {
     try {
