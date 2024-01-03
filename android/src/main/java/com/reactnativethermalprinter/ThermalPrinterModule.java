@@ -36,6 +36,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 
 
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +60,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 
 @ReactModule(name = ThermalPrinterModule.NAME)
 public class ThermalPrinterModule extends ReactContextBaseJavaModule {
@@ -259,6 +264,14 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
     }
   }
 
+  private Bitmap getBitmapFromBase64(String base64Img) {
+    byte[] decodedBytes = android.util.Base64.decode(base64Img, android.util.Base64.DEFAULT);
+
+    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    return  bitmap;
+
+  }
+
   /**
    * Synchronous printing
    */
@@ -270,12 +283,16 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
     StringBuffer sb = new StringBuffer();
     while (m.find()) {
       String firstGroup = m.group(1);
-      m.appendReplacement(sb, PrinterTextParserImg.bitmapToHexadecimalString(printer, getBitmapFromUrl(firstGroup)));
+      m.appendReplacement(sb, PrinterTextParserImg.bitmapToHexadecimalString(printer, getBitmapFromBase64(firstGroup)));
     }
     m.appendTail(sb);
 
     return sb.toString();
   }
+
+
+
+
 
   private void printIt(DeviceConnection printerConnection, String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine) {
     try {
