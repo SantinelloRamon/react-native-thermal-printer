@@ -182,38 +182,22 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
   private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
     public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
+      String payload = intent.getStringExtra("payload");
+      Boolean autoCut = intent.getBooleanExtra("autoCut", false);
+      Boolean openCashbox = intent.getBooleanExtra("openCashbox", false);
+      Double mmFeedPaper = intent.getDoubleExtra("mmFeedPaper", 20);
+      Double printerDpi = intent.getDoubleExtra("printerDpi", 203);
+      Double printerWidthMM = intent.getDoubleExtra("printerWidthMM", 80);
+      Double printerNbrCharactersPerLine = intent.getDoubleExtra("printerNbrCharactersPerLine", 42);
+
       if (ThermalPrinterModule.ACTION_USB_PERMISSION.equals(action)) {
         synchronized (this) {
           UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
           UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
           if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
             if (usbManager != null && usbDevice != null) {
-              String payload = "[C]<u><font size='big'>ORDER N°045</font></u>\n" +
-                "[L]\n" +
-                "[C]=========================================\n" +
-                "[L]\n" +
-                "[L]<b>BEAUTIFUL SHIRT</b>[R]9.99e\n" +
-                "[L]  + Size : S\n" +
-                "[L]\n" +
-                "[L]<b>AWESOME HAT</b>[R]24.99e\n" +
-                "[L]  + Size : 57/58\n" +
-                "[L]\n" +
-                "[C]--------------------------------\n" +
-                "[R]TOTAL PRICE :[R]34.98e\n" +
-                "[R]TAX :[R]4.23e\n" +
-                "[L]\n" +
-                "[C]================================\n" +
-                "[L]\n" +
-                "[L]<font size='tall'>Customer :</font>\n" +
-                "[L]Raymond DUPONT\n" +
-                "[L]5 rue des girafes\n" +
-                "[L]31547 PERPETES\n" +
-                "[L]Tel : +33801201456\n" +
-                "[L]\n" +
-                "[C]<barcode type='ean13' height='10'>831254784551</barcode>\n" +
-                "[C]<qrcode size='20'>https://dantsu.com/</qrcode>";
               UsbConnection printerConnection = new UsbConnection(usbManager, usbDevice);
-              printIt(printerConnection, payload, false, false, 6, 203, 80, 42);
+              printIt(printerConnection, payload, autoCut, openCashbox, mmFeedPaper, printerDpi, printerWidthMM, printerNbrCharactersPerLine);
             }
           }
         }
@@ -233,13 +217,24 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
 
     if(this.usbConnection != null && usbManager != null) {
       Log.i("DEBUG", "THERE IS USB CONNECTION AND USB MANAGER");
+      Intent intent = new Intent();
+      intent.setAction(ThermalPrinterModule.ACTION_USB_PERMISSION);
+      intent.putExtra("payload", payload);
+      intent.putExtra("autoCut", autoCut);
+      intent.putExtra("openCashbox", openCashbox);
+      intent.putExtra("mmFeedPaper", mmFeedPaper);
+      intent.putExtra("printerDpi", printerDpi);
+      intent.putExtra("printerWidthMM", printerWidthMM);
+      intent.putExtra("printerNbrCharactersPerLine", printerNbrCharactersPerLine);
+
       PendingIntent permissionIntent = PendingIntent.getBroadcast(
         getReactApplicationContext(),
         0,
-        new Intent(ThermalPrinterModule.ACTION_USB_PERMISSION),
+        intent,
         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0
       );
       IntentFilter filter = new IntentFilter(ThermalPrinterModule.ACTION_USB_PERMISSION);
+
 
       getCurrentActivity().registerReceiver(usbReceiver, filter);
       usbManager.requestPermission(usbConnection.getDevice(), permissionIntent);
