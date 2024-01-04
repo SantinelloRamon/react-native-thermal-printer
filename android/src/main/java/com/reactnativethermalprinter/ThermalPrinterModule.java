@@ -254,6 +254,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
       Bitmap bitmap = Glide
         .with(getCurrentActivity())
         .asBitmap()
+        .timeout(9000)
         .load(url)
         .submit()
         .get();
@@ -283,7 +284,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
     StringBuffer sb = new StringBuffer();
     while (m.find()) {
       String firstGroup = m.group(1);
-      m.appendReplacement(sb, PrinterTextParserImg.bitmapToHexadecimalString(printer, getBitmapFromBase64(firstGroup)));
+      m.appendReplacement(sb, PrinterTextParserImg.bitmapToHexadecimalString(printer, getBitmapFromUrl(firstGroup)));
     }
     m.appendTail(sb);
 
