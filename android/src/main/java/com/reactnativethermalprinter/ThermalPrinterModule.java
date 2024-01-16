@@ -235,9 +235,9 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
 
       PendingIntent permissionIntent = PendingIntent.getBroadcast(
         getReactApplicationContext(),
-        0,
+        5,
         intent,
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0 | PendingIntent.FLAG_CANCEL_CURRENT
+        PendingIntent.FLAG_UPDATE_CURRENT
       );
       IntentFilter filter = new IntentFilter(ThermalPrinterModule.ACTION_USB_PERMISSION);
 
