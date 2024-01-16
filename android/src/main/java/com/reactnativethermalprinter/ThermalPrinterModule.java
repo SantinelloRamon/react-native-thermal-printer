@@ -17,6 +17,7 @@ import android.content.Context;
 
 import com.bumptech.glide.Glide;
 import com.dantsu.escposprinter.EscPosPrinter;
+
 import com.dantsu.escposprinter.connection.DeviceConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
 import com.dantsu.escposprinter.connection.tcp.TcpConnection;
@@ -297,6 +298,7 @@ public class ThermalPrinterModule extends ReactContextBaseJavaModule {
 
   private void printIt(DeviceConnection printerConnection, String payload, boolean autoCut, boolean openCashbox, double mmFeedPaper, double printerDpi, double printerWidthMM, double printerNbrCharactersPerLine) {
     try {
+
       EscPosPrinter printer = new EscPosPrinter(printerConnection, (int) printerDpi, (float) printerWidthMM, (int) printerNbrCharactersPerLine);
       String processedPayload = preprocessImgTag(printer, payload);
 
